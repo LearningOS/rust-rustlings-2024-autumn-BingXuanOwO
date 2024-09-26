@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,24 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        if(self.items.len() <= self.count) {
+            self.items.push(value);
+        } else {
+            self.items[self.count] = (value);
+        }
+        let mut i = self.count;
+        self.count += 1;
+        
+        loop {
+            if i <= 0 {return}
+            let parent_idx = self.parent_idx(i);
+            if (self.comparator)(&self.items[i], &self.items[parent_idx]) {
+                self.items.swap(i, parent_idx);
+                i = parent_idx;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -49,7 +65,7 @@ where
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
-        idx * 2
+        idx * 2 + 1
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
@@ -57,8 +73,17 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if(self.right_child_idx(idx) >= self.count) {
+            return self.left_child_idx(idx)
+        }
+
+        let left = &self.items[self.left_child_idx(idx)];
+        let right = &self.items[self.right_child_idx(idx)];
+        if(self.comparator)(left,right) {
+            self.left_child_idx(idx)
+        } else {
+            self.right_child_idx(idx)
+        }
     }
 }
 
@@ -79,13 +104,37 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if(self.count <= 0) {
+            return None
+        }
+
+        self.items.swap(0, self.count - 1);
+        self.count -= 1;
+
+        let mut i = 0;
+        let mut i_ = 0;
+        loop{
+            let _i = self.smallest_child_idx(i);
+
+            if(_i >= self.count) {
+                break
+            }
+
+            if (self.comparator)(&self.items[_i], &self.items[i]) {
+                self.items.swap(i, _i);
+            }
+
+            i = _i;
+            i_ += 1;
+            assert!(i_ < 10);
+        }
+        println!();
+        Some(self.items[self.count].clone())
     }
 }
 
